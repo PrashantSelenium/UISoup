@@ -1,12 +1,5 @@
-UISoup
+uisoup-yandex (`forked <https://github.com/F1ashhimself/UISoup>`_)
 ======
-
-.. image:: https://pypip.in/v/UISoup/badge.png
-        :alt: Release Status
-        :target: https://pypi.python.org/pypi/UISoup
-.. image:: https://pypip.in/d/UISoup/badge.png
-        :alt: Downloads
-        :target: https://pypi.python.org/pypi/UISoup
 
 **This library supports UI-related testing using Python on Windows and Mac OS. (Only Python x86 is supported)**
 

@@ -13,12 +13,12 @@ def package_env(file_name, strict=False):
 
 if __name__ == '__main__':
     setup(
-        name='UISoup',
+        name='uisoup-yandex',
         version='2.4.2',
         description='Cross Platform GUI Test Automation tool.',
         long_description=package_env('README.rst'),
-        author='Max Beloborodko',
-        author_email='f1ashhimself@gmail.com',
+        author='Max Beloborodko, Sergey Chipiga',
+        author_email='f1ashhimself@gmail.com, svchipiga@yandex-team.ru',
         packages=['uisoup'] + ['.'.join(('uisoup', p)) for p in
                                find_packages('uisoup')],
         include_package_data=True,
