@@ -109,18 +109,21 @@ class MacMouse(IMouse):
         for code in codes:
             self._do_event(code, x, y)
 
-    def move(self, x, y, smooth=True):
+    def move(self, x, y, smooth=False):
         MacUtils.verify_xy_coordinates(x, y)
 
-        old_x, old_y = self.get_position()
-
-        for i in xrange(100):
-            intermediate_x = old_x + (x - old_x) * (i + 1) / 100.0
-            intermediate_y = old_y + (y - old_y) * (i + 1) / 100.0
-            smooth and sleep(.01)
-
-            self._do_event(CG.kCGEventMouseMoved, int(intermediate_x),
-                           int(intermediate_y))
+        if smooth:
+            length = 100
+            curr_x, curr_y = self.get_position()
+            delta_x = (x - curr_x) / length
+            delta_y = (y - curr_y) / length
+            for i in xrange(length):
+                sleep(.01)
+                curr_x += delta_x
+                curr_y += delta_y
+                self._do_event(CG.kCGEventMouseMoved, int(curr_x), int(curr_y))
+        else:
+            self._do_event(CG.kCGEventMouseMoved, int(x), int(y))
 
     def drag(self, x1, y1, x2, y2, smooth=True):
         MacUtils.verify_xy_coordinates(x1, y1)
@@ -128,11 +131,19 @@ class MacMouse(IMouse):
 
         self.press_button(x1, y1, self.LEFT_BUTTON)
 
-        for i in xrange(100):
-            x = x1 + (x2 - x1) * (i + 1) / 100.0
-            y = y1 + (y2 - y1) * (i + 1) / 100.0
-            smooth and sleep(.01)
-            self._do_event(CG.kCGEventLeftMouseDragged, x, y)
+        if smooth:
+            length = 100
+            x = x1
+            y = y1
+            delta_x = (x2 - x1) / length
+            delta_y = (y2 - y1) / length
+            for i in xrange(length):
+                sleep(.01)
+                x += delta_x
+                y += delta_y
+                self._do_event(CG.kCGEventLeftMouseDragged, int(x), int(y))
+        else:
+            self._do_event(CG.kCGEventLeftMouseDragged, int(x2), int(y2))
 
         self.release_button(self.LEFT_BUTTON)
 

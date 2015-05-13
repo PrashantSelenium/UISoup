@@ -126,18 +126,23 @@ class WinMouse(IMouse):
         ctypes.windll.user32.mouse_event(
             flags, x_calc, y_calc, data, extra_info)
 
-    def move(self, x, y, smooth=True):
+    def move(self, x, y, smooth=False):
         WinUtils.verify_xy_coordinates(x, y)
 
-        old_x, old_y = self.get_position()
-
-        for i in xrange(100):
-            intermediate_x = old_x + (x - old_x) * (i + 1) / 100.0
-            intermediate_y = old_y + (y - old_y) * (i + 1) / 100.0
-            smooth and sleep(.01)
-
+        if smooth:
+            length = 100
+            curr_x, curr_y = self.get_position()
+            delta_x = (x - curr_x) / length
+            delta_y = (y - curr_y) / length
+            for i in xrange(length):
+                sleep(.01)
+                curr_x += delta_x
+                curr_y += delta_y
+                self._do_event(self._MOUSEEVENTF_MOVE + self._MOUSEEVENTF_ABSOLUTE,
+                               int(curr_x), int(curr_y), 0, 0)
+        else:
             self._do_event(self._MOUSEEVENTF_MOVE + self._MOUSEEVENTF_ABSOLUTE,
-                           int(intermediate_x), int(intermediate_y), 0, 0)
+                           int(x), int(y), 0, 0)
 
     def drag(self, x1, y1, x2, y2, smooth=True):
         WinUtils.verify_xy_coordinates(x1, y1)
