@@ -113,11 +113,10 @@ class MacMouse(IMouse):
         MacUtils.verify_xy_coordinates(x, y)
 
         if smooth:
-            length = 100
             curr_x, curr_y = self.get_position()
-            delta_x = (x - curr_x) / length
-            delta_y = (y - curr_y) / length
-            for i in xrange(length):
+            delta_x = (x - curr_x) / 100.0
+            delta_y = (y - curr_y) / 100.0
+            for i in xrange(100):
                 sleep(.01)
                 curr_x += delta_x
                 curr_y += delta_y
@@ -132,12 +131,11 @@ class MacMouse(IMouse):
         self.press_button(x1, y1, self.LEFT_BUTTON)
 
         if smooth:
-            length = 100
             x = x1
             y = y1
-            delta_x = (x2 - x1) / length
-            delta_y = (y2 - y1) / length
-            for i in xrange(length):
+            delta_x = (x2 - x1) / 100.0
+            delta_y = (y2 - y1) / 100.0
+            for i in xrange(100):
                 sleep(.01)
                 x += delta_x
                 y += delta_y
