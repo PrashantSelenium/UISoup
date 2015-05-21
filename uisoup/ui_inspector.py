@@ -15,10 +15,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-__author__ = 'f1ashhimself@gmail.com'
-
+__author__ = 'f1ashhimself@gmail.com, svchipiga@yandex-team.ru'
 
 from os import system
+from sys import stdout
 from time import sleep
 from inspect import ismethod
 from platform import system as platform_system
@@ -58,8 +58,10 @@ class UIInspector(object):
             except:
                 dict_info[attr] = None
 
-        return '\n'.join('%s:\t%r' % (attr, dict_info[attr]) for
+        result = u'\n'.join(u'{}:\t{}'.format(attr, dict_info[attr]) for
                          attr in lst_attribute_name_list)
+        result = result.encode(stdout.encoding, errors='replace')
+        return result
 
 
 def main():
