@@ -164,10 +164,10 @@ class WinMouse(IMouse):
     def release_button(self, button_name=LEFT_BUTTON):
         WinUtils.verify_mouse_button_name(button_name,
                                           self._SUPPORTED_BUTTON_NAMES)
-
+        curr_x, curr_y = self.get_position()
         self._do_event(
             self._compose_mouse_event(button_name, press=False, release=True),
-            0, 0, 0, 0)
+            curr_x, curr_y, 0, 0)
 
     def click(self, x, y, button_name=LEFT_BUTTON):
         WinUtils.verify_xy_coordinates(x, y)

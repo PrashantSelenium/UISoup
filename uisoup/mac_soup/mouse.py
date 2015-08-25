@@ -160,7 +160,8 @@ class MacMouse(IMouse):
 
         event_codes = self._compose_mouse_event_chain(
             button_name, press=False, release=True)
-        self._do_events(event_codes, 0, 0)
+        curr_x, curr_y = self.get_position()
+        self._do_events(event_codes, curr_x, curr_y)
 
     def click(self, x, y, button_name=LEFT_BUTTON):
         MacUtils.verify_xy_coordinates(x, y)
