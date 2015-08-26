@@ -172,7 +172,7 @@ class MacMouse(IMouse):
             button_name, press=True, release=True)
         self._do_events(event_codes, x, y)
 
-    def double_click(self, x, y, button_name=LEFT_BUTTON):
+    def double_click(self, x, y, button_name=LEFT_BUTTON, click_interval=0.5):
         MacUtils.verify_xy_coordinates(x, y)
         MacUtils.verify_mouse_button_name(button_name,
                                           self._SUPPORTED_BUTTON_NAMES)
@@ -193,6 +193,8 @@ class MacMouse(IMouse):
         CG.CGEventPost(CG.kCGHIDEventTap, event)
 
         CG.CGEventSetIntegerValueField(event, CG.kCGMouseEventClickState, 2)
+        # https://msdn.microsoft.com/en-us/library/windows/desktop/ms646263%28v=vs.85%29.aspx
+        sleep(click_interval)
 
         CG.CGEventSetType(event, down)
         CG.CGEventPost(CG.kCGHIDEventTap, event)

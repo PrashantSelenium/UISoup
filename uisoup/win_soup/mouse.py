@@ -179,7 +179,7 @@ class WinMouse(IMouse):
             self._compose_mouse_event(button_name, press=True, release=True),
             0, 0, 0, 0)
 
-    def double_click(self, x, y, button_name=LEFT_BUTTON):
+    def double_click(self, x, y, button_name=LEFT_BUTTON, click_interval=0.5):
         WinUtils.verify_xy_coordinates(x, y)
         WinUtils.verify_mouse_button_name(button_name,
                                           self._SUPPORTED_BUTTON_NAMES)
@@ -188,6 +188,8 @@ class WinMouse(IMouse):
         self._do_event(
             self._compose_mouse_event(button_name, press=True, release=True),
             0, 0, 0, 0)
+        # https://msdn.microsoft.com/en-us/library/windows/desktop/ms646263%28v=vs.85%29.aspx
+        sleep(click_interval)
         self._do_event(
             self._compose_mouse_event(button_name, press=True, release=True),
             0, 0, 0, 0)

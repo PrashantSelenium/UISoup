@@ -112,7 +112,7 @@ class IMouse(object):
         """
 
     @abstractmethod
-    def double_click(self, x, y, button_name=LEFT_BUTTON):
+    def double_click(self, x, y, button_name=LEFT_BUTTON, click_interval=0.5):
         """
         Double-clicks as dictated by coordinates and button name.
 
@@ -121,6 +121,7 @@ class IMouse(object):
             - y: integer value with y coordinate to double-click at.
             - button_name: string value with mouse button name. Should be one
             of: 'b1c' - left button or 'b3c' - right button.
+            - click_interval: float value with time between two clicks in seconds.
 
         Returns:
             - None
