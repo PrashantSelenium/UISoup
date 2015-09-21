@@ -284,7 +284,7 @@ class WinElement(IElement):
         x += x_offset if x_offset is not None else w / 2
         y += y_offset if y_offset is not None else h / 2
 
-        self._mouse.double_click(x, y, click_interval)
+        self._mouse.double_click(x, y, click_interval=click_interval)
 
     def drag_to(self, x, y, x_offset=None, y_offset=None, smooth=True):
         el_x, el_y, el_w, el_h = self.acc_location
