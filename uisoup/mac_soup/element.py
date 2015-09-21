@@ -143,12 +143,12 @@ class MacElement(IElement):
         self._mouse.click(x, y, self._mouse.RIGHT_BUTTON)
         self._cached_properties = None
 
-    def double_click(self, x_offset=0, y_offset=0):
+    def double_click(self, x_offset=0, y_offset=0, click_interval=0.5):
         x, y, w, h = self.acc_location
         x += x_offset if x_offset is not None else w / 2
         y += y_offset if y_offset is not None else h / 2
 
-        self._mouse.double_click(x, y)
+        self._mouse.double_click(x, y, click_interval)
         self._cached_properties = None
 
     def drag_to(self, x, y, x_offset=None, y_offset=None, smooth=True):

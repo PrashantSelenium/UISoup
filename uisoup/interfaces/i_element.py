@@ -63,7 +63,7 @@ class IElement(object):
         """
 
     @abstractmethod
-    def double_click(self, x_offset=None, y_offset=None):
+    def double_click(self, x_offset=None, y_offset=None, click_interval=0.5):
         """
         Double clicks by left mouse button on this object.
 
@@ -72,6 +72,7 @@ class IElement(object):
             will be used.
             - y_offset: int, y offset, if not defined half of element height
             will be used.
+            - click_interval: float value with time between two clicks in seconds.
 
         Returns:
             - None
