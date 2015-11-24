@@ -187,7 +187,7 @@ class AppleEventDescriptor(object):
 class MacUtils(_Utils):
 
     @classmethod
-    @retry(retry_on_exception=lambda e: isinstance(e, TooSaltyUISoupException))
+    @retry(stop_max_attempt_number=5)
     def execute_applescript_command(cls, cmd):
         """
         Executes applescript command.
