@@ -14,7 +14,7 @@ def package_env(file_name, strict=False):
 if __name__ == '__main__':
     setup(
         name='uisoup-yandex',
-        version='2.4.10',
+        version='2.4.11',
         description='Cross Platform GUI Test Automation tool.',
         long_description=package_env('README.rst'),
         author='Max Beloborodko, Sergey Chipiga',
@@ -22,7 +22,7 @@ if __name__ == '__main__':
         packages=['uisoup'] + ['.'.join(('uisoup', p)) for p in
                                find_packages('uisoup')],
         include_package_data=True,
-        install_requires=['comtypes'],
+        install_requires=['comtypes', 'retrying==1.3.3'],
         zip_safe=False,
         entry_points={
             'console_scripts': [

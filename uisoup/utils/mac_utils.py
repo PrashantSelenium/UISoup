@@ -21,6 +21,7 @@ __author__ = 'f1ashhimself@gmail.com'
 import struct
 from AppKit import NSAppleScript
 from Carbon import AppleEvents
+from retrying import retry
 
 from ..utils import _Utils
 from .. import TooSaltyUISoupException
@@ -186,6 +187,7 @@ class AppleEventDescriptor(object):
 class MacUtils(_Utils):
 
     @classmethod
+    @retry(retry_on_exception=lambda e: isinstance(e, TooSaltyUISoupException))
     def execute_applescript_command(cls, cmd):
         """
         Executes applescript command.
