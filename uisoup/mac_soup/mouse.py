@@ -90,7 +90,7 @@ class MacMouse(IMouse):
             button = CG.kCGMouseButtonCenter
 
         CG.CGEventPost(
-            CG.kCGHIDEventTap,
+            CG.kCGSessionEventTap,
             CG.CGEventCreateMouseEvent(None, code, (x, y), button)
         )
 
@@ -188,18 +188,18 @@ class MacMouse(IMouse):
 
         # http://www.codeitive.com/0iJqgkejVj/performing-a-double-click-using-cgeventcreatemouseevent.html
         event = CG.CGEventCreateMouseEvent(None, down, (x, y), button)
-        CG.CGEventPost(CG.kCGHIDEventTap, event)
+        CG.CGEventPost(CG.kCGSessionEventTap, event)
         CG.CGEventSetType(event, up)
-        CG.CGEventPost(CG.kCGHIDEventTap, event)
+        CG.CGEventPost(CG.kCGSessionEventTap, event)
 
         CG.CGEventSetIntegerValueField(event, CG.kCGMouseEventClickState, 2)
         # https://msdn.microsoft.com/en-us/library/windows/desktop/ms646263%28v=vs.85%29.aspx
         sleep(click_interval)
 
         CG.CGEventSetType(event, down)
-        CG.CGEventPost(CG.kCGHIDEventTap, event)
+        CG.CGEventPost(CG.kCGSessionEventTap, event)
         CG.CGEventSetType(event, up)
-        CG.CGEventPost(CG.kCGHIDEventTap, event)
+        CG.CGEventPost(CG.kCGSessionEventTap, event)
 
     def get_position(self):
         position = CG.CGEventGetLocation(CG.CGEventCreate(None))

@@ -158,7 +158,7 @@ class MacKeyboard(IKeyboard):
         """
 
         CG.CGEventPost(
-            CG.kCGHIDEventTap,
+            CG.kCGSessionEventTap,
             CG.CGEventCreateKeyboardEvent(None, hex_key_code, True))
 
     def release_key(self, hex_key_code):
@@ -172,7 +172,7 @@ class MacKeyboard(IKeyboard):
         """
 
         CG.CGEventPost(
-            CG.kCGHIDEventTap,
+            CG.kCGSessionEventTap,
             CG.CGEventCreateKeyboardEvent(None, hex_key_code, False))
 
     def send(self, *args, **kwargs):
