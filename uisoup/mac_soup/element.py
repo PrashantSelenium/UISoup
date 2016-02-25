@@ -210,10 +210,7 @@ class MacElement(IElement):
             self._properties.get('AXTitle')
 
         if not result:
-            if self.acc_role_name == self._acc_role_name_map['AXTextField']:
-                result = self._class_id
-            else:
-                result = self._properties.get('AXValue') or self._class_id
+            result = self._properties.get('AXValue') or self._class_id
 
         return MacUtils.replace_inappropriate_symbols(result or '')
 
