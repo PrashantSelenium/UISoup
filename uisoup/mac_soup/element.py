@@ -207,10 +207,8 @@ class MacElement(IElement):
     @property
     def acc_name(self):
         result = self._properties.get('AXDescription') or \
-            self._properties.get('AXTitle')
-
-        if not result:
-            result = self._properties.get('AXValue') or self._class_id
+            self._properties.get('AXTitle') or \
+            self._properties.get('AXValue') or self._class_id
 
         return MacUtils.replace_inappropriate_symbols(result or '')
 
