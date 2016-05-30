@@ -101,10 +101,17 @@ class MacSoup(ISoup):
         # Escape double quotes in window name.
         window_name = window_name.replace('"', '\\"')
 
-        selector = \
-            MacUtils.ApplescriptExecutor.get_apple_event_descriptor(
-                'window "%s"' % window_name,
-                process_name).applescript_specifier
+        try:
+            selector = \
+                MacUtils.ApplescriptExecutor.get_apple_event_descriptor(
+                    'window "%s"' % window_name,
+                    process_name).applescript_specifier
+        except TooSaltyUISoupException:
+            selector = \
+                MacUtils.ApplescriptExecutor.get_apple_event_descriptor(
+                    'window 0',
+                    process_name).applescript_specifier
+
         selector = \
             selector if type(selector) == unicode else selector.decode('utf-8')
 
