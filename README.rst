@@ -47,6 +47,10 @@ Also adds :code:`ui-inspector` script that allows you to inspect UI elements. Ju
 
 **Changelog:**
 
+UISoup 2.4.14 (released 2 Jun 2016)
+
+* Fixes: fix setting window focus on mac.
+
 UISoup 2.4.13 (released 30 May 2016)
 
 * Mac OS Additions: add ability to get window whose accessibility title not equal to Quartz window title.
