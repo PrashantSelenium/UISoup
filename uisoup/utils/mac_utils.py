@@ -250,7 +250,6 @@ class MacUtils(_Utils):
             """
 
             cmd = ['tell application "System Events" to tell process "%s"' % process_name,
-                   '  tell application "System Events" to tell process "%s" to activate' % process_name,
                    '  set visible to true',
                    '  return %s' % obj_selector,
                    'end tell']
