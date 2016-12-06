@@ -77,6 +77,26 @@ class MacElement(IElement):
         self._cached_children = set()
         self._cached_properties = None
 
+    def _parse_c_name(self, **kwargs):
+        """
+        Used for back compatibility if 'find' or 'finall' method calls
+        witn c_name parameter like 'typeTitle' ('btnOpen')
+        :param c_name: input c_name
+        :return: strings, AXRole and AXTitle
+        """
+        axrole = axtitle = None
+        c_name = kwargs.pop('c_name', '')
+        for k, rolename in enumerate(self._acc_role_name_map):
+            if c_name.startswith(self._acc_role_name_map[rolename]):
+                axrole = rolename
+                axtitle = c_name[len(self._acc_role_name_map[rolename]):]
+                break
+        if axrole:
+            kwargs['AXRole'] = axrole
+        if axtitle:
+            kwargs['AXTitle'] = axtitle
+        return kwargs
+
     @property
     def _properties(self):
         """
@@ -120,7 +140,7 @@ class MacElement(IElement):
         self._mouse.click(x, y)
         self._cached_properties = None
 
-    def right_click(self, x_offset=0, y_offset=0):
+    def right_click(self, x_offset=None, y_offset=None):
         x, y, w, h = self.acc_location
         x += x_offset if x_offset is not None else w / 2
         y += y_offset if y_offset is not None else h / 2
@@ -128,7 +148,7 @@ class MacElement(IElement):
         self._mouse.click(x, y, self._mouse.RIGHT_BUTTON)
         self._cached_properties = None
 
-    def double_click(self, x_offset=0, y_offset=0, click_interval=0.5):
+    def double_click(self, x_offset=None, y_offset=None, click_interval=0.5):
         x, y, w, h = self.acc_location
         x += x_offset if x_offset is not None else w / 2
         y += y_offset if y_offset is not None else h / 2
@@ -251,65 +271,15 @@ class MacElement(IElement):
 
         return result
 
+    def __iter__(self):
+        pass
+
     @property
     def acc_role_name(self):
         return self._acc_role_name_map.get(self._role, 'unknown')
 
-    def __iter__(self):
-        children_elements = self._properties.get('AXChildren', [])
-
-        # children = children_elements[0]
-
-        if not len(children_elements):
-            raise StopIteration()
-
-        for element in children_elements:
-            yield MacElement(element.AXChildren,
-                             self._proc_name, self.proc_id)
-
-    def __findcacheiter(self, only_visible, **kwargs):
-        """
-        Find child element in the cache.
-
-        Arguments:
-            - only_visible: bool, flag that indicates will we search only
-
-        Returns:
-            - Yield found element.
-        """
-
-        for obj_element in self._cached_children:
-            if obj_element._match(only_visible, **kwargs):
-                yield obj_element
-
-    def _finditer(self, only_visible, **kwargs):
-        """
-        Find child element.
-
-        Arguments:
-            - only_visible: bool, flag that indicates will we search only
-
-        Returns:
-            - Yield found element.
-        """
-
-        lst_queue = list(self)
-
-        if self.is_top_level_window:
-            lst_queue.extend(self._find_windows_by_same_proc())
-
-        while lst_queue:
-            obj_element = lst_queue.pop(0)
-            self._cached_children.add(obj_element)
-
-            if obj_element._match(only_visible, **kwargs):
-                yield obj_element
-
-            if obj_element.acc_child_count:
-                childs = [el for el in list(obj_element)]
-                lst_queue[:0] = childs
-
     def find(self, **kwargs):
+        kwargs = self._parse_c_name(**kwargs)
         result = self._element.findFirstR(**kwargs)
 
         if not result:
@@ -320,6 +290,7 @@ class MacElement(IElement):
         return MacElement(result, self._proc_name, self.proc_id)
 
     def findall(self, only_visible=True, **kwargs):
+        kwargs = self._parse_c_name(**kwargs)
         result = self._element.findAllR(**kwargs)
 
         if not result:
@@ -327,7 +298,9 @@ class MacElement(IElement):
             raise TooSaltyUISoupException(
                 'Can\'t find object with attributes "%s".' %
                 '; '.join(attrs))
-        return MacElement(result, self._proc_name, self.proc_id)
+        if not isinstance(result, list):
+            result = [result]
+        return [MacElement(r, self._proc_name, self.proc_id) for r in result]
 
     def is_object_exists(self, **kwargs):
         try:
