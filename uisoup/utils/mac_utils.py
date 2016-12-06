@@ -19,10 +19,10 @@ __author__ = 'f1ashhimself@gmail.com'
 
 
 import struct
-from AppKit import NSAppleScript
+import atomac
 from Carbon import AppleEvents
 from retrying import retry
-
+from AppKit import NSAppleScript
 from ..utils import _Utils
 from .. import TooSaltyUISoupException
 
@@ -299,41 +299,27 @@ class MacUtils(_Utils):
             return elements, int(event_descriptors_list[1].string_value)
 
         @classmethod
-        def get_element_properties(cls, obj_selector, process_name):
+        def get_element_properties(cls, element):
             """
             Gets all element properties.
 
             Arguments:
-                - obj_selector: string, object selector.
-                - process_name: string, name of process.
+                - element - atomac object
 
             Returns:
                 - Dict with element properties.
             """
 
-            cmd = ['tell application "System Events" to tell application process "%s"' % process_name,
-                   '  set visible to true',
-                   '  set res to {}',
-                   '  repeat with attr in attributes of %s' % obj_selector,
-                   '    try',
-                   '      set res to res & {{name of attr, value of attr}}',
-                   '    end try',
-                   '  end repeat',
-                   '  return res',
-                   'end tell']
-
-            event_descriptors_list = list(
-                MacUtils.execute_applescript_command(cmd))
+            event_descriptors_list = element.getAttributes()
 
             # Unpacking properties to dict.
             el_properties = dict()
             for prop in event_descriptors_list:
-                prop = list(prop)
-                prop_name = prop[0].string_value
-                prop_value = [e.string_value for e in list(prop[1])] if \
-                    list(prop[1]) else prop[1].string_value
-
-                el_properties[prop_name] = prop_value
+                try:
+                    prop_value = getattr(element, prop)
+                except atomac._a11y.ErrorUnsupported:
+                    prop_value = None
+                el_properties[prop] = prop_value
 
             return el_properties
 
@@ -370,51 +356,44 @@ class MacUtils(_Utils):
             return result
 
         @classmethod
-        def get_axunknown_windows(cls, process_name):
+        def get_axunknown_windows(cls, process_id):
             """
-            Gets AXUnknown windows by given process name.
+            Gets AXUnknown windows by given process id.
 
             Arguments:
-                - process_name: string, name of process.
+                - process_id: int, process id.
 
             Returns:
-                - List of AppleEventDescriptor elements.
+                - List of atomac elements.
             """
 
-            cmd = ['tell application "System Events" to tell process "%s"' % process_name,
-                   '  set visible to true',
-                   '  set unknownWindows to {}',
-                   '  repeat with e in UI elements',
-                   '    if value of attribute "AXRole" of e is equal to "AXUnknown" then',
-                   '      set unknownWindows to unknownWindows & {e}',
-                   '    end if',
-                   '  end repeat',
-                   '  return unknownWindows',
-                   'end tell']
+            unknown_windows = []
+            app = atomac.getAppRefByPid(process_id)
+            app.activate()
+            for win in app.windowsR():
+                if win.AXRole == 'AXUnknown':
+                    unknown_windows.append(win)
 
-            return list(MacUtils.execute_applescript_command(cmd))
+            return unknown_windows
 
         @classmethod
-        def get_axdialog_windows(cls, process_name):
+        def get_axdialog_windows(cls, process_id):
             """
-            Gets AXDialog windows by given process name.
+            Gets AXDialog windows by given process id.
 
             Arguments:
-                - process_name: string, name of process.
+                - process_id: int, process id.
 
             Returns:
-                - List of AppleEventDescriptor elements.
+                - List of atomac elements.
             """
 
-            cmd = ['tell application "System Events" to tell process "%s"' % process_name,
-                   '  set visible to true',
-                   '  set dialogWindows to {}',
-                   '  repeat with e in UI elements',
-                   '    if value of attribute "AXRole" of e is equal to "AXWindow" and value of attribute "AXSubrole" of e is equal to "AXDialog" then',
-                   '      set dialogWindows to dialogWindows & {e}',
-                   '    end if',
-                   '  end repeat',
-                   '  return dialogWindows',
-                   'end tell']
+            dialog_windows = []
+            app = atomac.getAppRefByPid(process_id)
+            app.activate()
+            for win in app.windowsR():
+                if win.AXRole == 'AXWindow' and win.AXSubrole == 'AXDialog':
+                    dialog_windows.append(win)
 
-            return list(MacUtils.execute_applescript_command(cmd))
+            return dialog_windows
+

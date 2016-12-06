@@ -17,6 +17,7 @@
 __author__ = 'f1ashhimself@gmail.com'
 
 from ..interfaces.i_element import IElement
+import atomac
 from ..utils.mac_utils import MacUtils
 from .. import TooSaltyUISoupException
 from .mouse import MacMouse
@@ -62,24 +63,17 @@ class MacElement(IElement):
 
     _mouse = MacMouse()
 
-    def __init__(self, obj_selector, layer_num, process_name, process_id,
-                 class_id=None):
+    def __init__(self, atomac_object, process_name, process_id):
         """
         Constructor.
 
         Arguments:
-            - obj_selector: string, object selector.
-            - layer_num: int, layer number. I.e. main window will be layer 0.
-            - process_name: string, process
-            - process_id: int, process id.
-            - class_id: string, element class identifier.
+            - atomac_object: string, object selector.
         """
 
-        self._object_selector = obj_selector
-        self._layer_num = layer_num
-        self._proc_id = process_id
+        self._element = atomac_object
         self._proc_name = process_name
-        self._class_id = class_id
+        self._proc_id = process_id
         self._cached_children = set()
         self._cached_properties = None
 
@@ -91,8 +85,7 @@ class MacElement(IElement):
 
         if not self._cached_properties:
             self._cached_properties = \
-                MacUtils.ApplescriptExecutor.get_element_properties(
-                    self._object_selector, self._proc_name)
+                MacUtils.ApplescriptExecutor.get_element_properties(self._element)
 
         return self._cached_properties
 
@@ -115,22 +108,14 @@ class MacElement(IElement):
             - list of windows.
         """
 
-        axunknown_windows = \
-            MacUtils.ApplescriptExecutor.get_axunknown_windows(self._proc_name)
-        axdialog_windows = \
-            MacUtils.ApplescriptExecutor.get_axdialog_windows(self._proc_name)
+        app = atomac.getAppRefByPid(self.proc_id)
+        app.activate()
+        return app.windowsR()
 
-        mac_elements = \
-            [MacElement(element.applescript_specifier, 1, self._proc_name,
-                        self._proc_id, element.class_id) for element in
-             axunknown_windows + axdialog_windows]
-
-        return filter(lambda x: x.acc_child_count, mac_elements)
-
-    def click(self, x_offset=0, y_offset=0):
+    def click(self, x_offset=None, y_offset=None):
         x, y, w, h = self.acc_location
-        x += x_offset if x_offset is not None else w / 2
-        y += y_offset if y_offset is not None else h / 2
+        x += x_offset if x_offset is not None else int(w / 2)
+        y += y_offset if y_offset is not None else int(h / 2)
 
         self._mouse.click(x, y)
         self._cached_properties = None
@@ -165,7 +150,7 @@ class MacElement(IElement):
 
     @property
     def is_top_level_window(self):
-        return self.acc_parent_count == 0
+        return self._properties.get('AXParent', 'false') == 'false'
 
     @property
     def is_selected(self):
@@ -195,24 +180,22 @@ class MacElement(IElement):
 
     @property
     def acc_parent_count(self):
-        return self._layer_num
+        return 0
 
     @property
     def acc_child_count(self):
-        children_elements = MacUtils.ApplescriptExecutor.get_children_elements(
-            self._object_selector, self.acc_parent_count, self._proc_name)
-
-        return len(children_elements[0])
+        return len(self._properties.get('AXChildren'))
 
     @property
     def acc_name(self):
         result = self._properties.get('AXDescription') or \
             self._properties.get('AXTitle') or \
-            self._properties.get('AXValue') or self._class_id
+            self._properties.get('AXValue')
 
         return MacUtils.replace_inappropriate_symbols(result or '')
 
     def set_focus(self):
+        # TODO:
         MacUtils.ApplescriptExecutor.set_element_attribute_value(
             self._object_selector, 'AXFocused', 'true', self._proc_name, False)
 
@@ -222,8 +205,8 @@ class MacElement(IElement):
 
     @property
     def acc_location(self):
-        x, y = self._properties.get('AXPosition', [0, 0])
-        w, h = self._properties.get('AXSize', [0, 0])
+        x, y = self._element.AXPosition
+        w, h = self._element.AXSize
 
         return map(int, [x, y, w, h])
 
@@ -232,6 +215,7 @@ class MacElement(IElement):
         return self._properties.get('AXValue', None)
 
     def set_value(self, value):
+        # TODO:
         MacUtils.ApplescriptExecutor.set_element_attribute_value(
             self._object_selector, 'AXValue', value, self._proc_name)
         self._cached_properties = None
@@ -243,16 +227,11 @@ class MacElement(IElement):
     @property
     def acc_parent(self):
         result = None
-        event_descriptor = \
-            MacUtils.ApplescriptExecutor.get_apple_event_descriptor(
-                self._object_selector, self._proc_name)
-        if self.acc_parent_count > 0 and event_descriptor.from_:
+        if self.acc_parent_count > 0:
             result = \
-                MacElement(event_descriptor.from_.applescript_specifier,
-                           self.acc_parent_count - 1,
+                MacElement(self._element.AXParent,
                            self._proc_name,
-                           self.proc_id,
-                           event_descriptor.class_id)
+                           self._proc_id)
 
         return result
 
@@ -277,19 +256,16 @@ class MacElement(IElement):
         return self._acc_role_name_map.get(self._role, 'unknown')
 
     def __iter__(self):
-        children_elements = MacUtils.ApplescriptExecutor.get_children_elements(
-            self._object_selector, self._layer_num, self._proc_name)
+        children_elements = self._properties.get('AXChildren', [])
 
-        children = children_elements[0]
-        layer_number = children_elements[1]
+        # children = children_elements[0]
 
-        if not len(children):
+        if not len(children_elements):
             raise StopIteration()
 
-        for element in children:
-            yield MacElement(element['selector'], layer_number,
-                             self._proc_name, self.proc_id,
-                             element['class_id'])
+        for element in children_elements:
+            yield MacElement(element.AXChildren,
+                             self._proc_name, self.proc_id)
 
     def __findcacheiter(self, only_visible, **kwargs):
         """
@@ -333,26 +309,25 @@ class MacElement(IElement):
                 childs = [el for el in list(obj_element)]
                 lst_queue[:0] = childs
 
-    def find(self, only_visible=True, **kwargs):
-        try:
-            return self.__findcacheiter(only_visible,
-                                        **kwargs).next()
-        except StopIteration:
-            try:
-                return self._finditer(only_visible,
-                                      **kwargs).next()
-            except StopIteration:
-                attrs = ['%s=%s' % (k, v) for k, v in kwargs.iteritems()]
-                raise TooSaltyUISoupException(
-                    'Can\'t find object with attributes "%s".' %
-                    '; '.join(attrs))
+    def find(self, **kwargs):
+        result = self._element.findFirstR(**kwargs)
+
+        if not result:
+            attrs = ['%s=%s' % (k, v) for k, v in kwargs.iteritems()]
+            raise TooSaltyUISoupException(
+                'Can\'t find object with attributes "%s".' %
+                '; '.join(attrs))
+        return MacElement(result, self._proc_name, self.proc_id)
 
     def findall(self, only_visible=True, **kwargs):
-        result = self._finditer(only_visible, **kwargs)
-        if result:
-            result = list(result)
+        result = self._element.findAllR(**kwargs)
 
-        return result
+        if not result:
+            attrs = ['%s=%s' % (k, v) for k, v in kwargs.iteritems()]
+            raise TooSaltyUISoupException(
+                'Can\'t find object with attributes "%s".' %
+                '; '.join(attrs))
+        return MacElement(result, self._proc_name, self.proc_id)
 
     def is_object_exists(self, **kwargs):
         try:

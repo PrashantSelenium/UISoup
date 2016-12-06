@@ -21,6 +21,7 @@ import sys
 import re
 
 from Quartz import CoreGraphics as CG
+import atomac
 
 from ..interfaces.i_soup import ISoup
 from ..utils.mac_utils import MacUtils
@@ -115,7 +116,10 @@ class MacSoup(ISoup):
         selector = \
             selector if type(selector) == unicode else selector.decode('utf-8')
 
-        return MacElement(selector, 0, process_name, process_id)
+        app = atomac.getAppRefByPid(process_id)
+        window = app.windows()[0]
+
+        return MacElement(window, process_name, process_id)
 
     def get_visible_window_list(self):
         win_list = CG.CGWindowListCopyWindowInfo(
