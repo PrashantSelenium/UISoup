@@ -18,7 +18,7 @@ if __name__ == '__main__':
         required.append('atomac')
     setup(
         name='uisoup-yandex',
-        version='2.4.14',
+        version='2.5.0',
         description='Cross Platform GUI Test Automation tool.',
         long_description=package_env('README.rst'),
         author='Max Beloborodko, Sergey Chipiga',
