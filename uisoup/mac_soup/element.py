@@ -69,6 +69,8 @@ class MacElement(IElement):
 
         Arguments:
             - atomac_object: string, object selector.
+            - process_name: string, process
+            - process_id: int, process id.
         """
 
         self._element = atomac_object
@@ -81,8 +83,11 @@ class MacElement(IElement):
         """
         Used for back compatibility if 'find' or 'finall' method calls
         witn 'c_name' parameter like 'typeTitle' ('btnOpen')
-        :param kwargs
-        :return: updated kwargs
+
+        Arguments:
+            - param kwargs
+        Returns:
+            - updated kwargs
         """
         axrole = axtitle = None
         c_name = kwargs.pop('c_name', '')
@@ -100,7 +105,7 @@ class MacElement(IElement):
     @property
     def _properties(self):
         """
-            Gets all element properties.
+        Gets all element properties.
         """
 
         if not self._cached_properties:
