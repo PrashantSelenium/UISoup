@@ -80,9 +80,9 @@ class MacElement(IElement):
     def _parse_c_name(self, **kwargs):
         """
         Used for back compatibility if 'find' or 'finall' method calls
-        witn c_name parameter like 'typeTitle' ('btnOpen')
-        :param c_name: input c_name
-        :return: strings, AXRole and AXTitle
+        witn 'c_name' parameter like 'typeTitle' ('btnOpen')
+        :param kwargs
+        :return: updated kwargs
         """
         axrole = axtitle = None
         c_name = kwargs.pop('c_name', '')
@@ -100,13 +100,22 @@ class MacElement(IElement):
     @property
     def _properties(self):
         """
-        Property for element properties.
+            Gets all element properties.
         """
 
         if not self._cached_properties:
-            self._cached_properties = \
-                MacUtils.ApplescriptExecutor.get_element_properties(self._element)
+            event_descriptors_list = self._element.getAttributes()
 
+            # Unpacking properties to dict.
+            el_properties = dict()
+            for prop in event_descriptors_list:
+                try:
+                    prop_value = getattr(self._element, prop)
+                except atomac._a11y.ErrorUnsupported:
+                    prop_value = None
+                el_properties[prop] = prop_value
+
+            self._cached_properties = el_properties
         return self._cached_properties
 
     @property
@@ -200,7 +209,15 @@ class MacElement(IElement):
 
     @property
     def acc_parent_count(self):
-        return 0
+        result = 0
+        current = self._element
+        while current is not None:
+            try:
+                current = current.AXParent
+                result += 1
+            except atomac._a11y.ErrorUnsupported:
+                current = None
+        return result
 
     @property
     def acc_child_count(self):

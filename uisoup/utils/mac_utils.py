@@ -299,31 +299,6 @@ class MacUtils(_Utils):
             return elements, int(event_descriptors_list[1].string_value)
 
         @classmethod
-        def get_element_properties(cls, element):
-            """
-            Gets all element properties.
-
-            Arguments:
-                - element - atomac object
-
-            Returns:
-                - Dict with element properties.
-            """
-
-            event_descriptors_list = element.getAttributes()
-
-            # Unpacking properties to dict.
-            el_properties = dict()
-            for prop in event_descriptors_list:
-                try:
-                    prop_value = getattr(element, prop)
-                except atomac._a11y.ErrorUnsupported:
-                    prop_value = None
-                el_properties[prop] = prop_value
-
-            return el_properties
-
-        @classmethod
         def set_element_attribute_value(cls, obj_selector, attribute_name,
                                         value, process_name,
                                         string_value=True):
@@ -354,46 +329,3 @@ class MacUtils(_Utils):
                 result = False
 
             return result
-
-        @classmethod
-        def get_axunknown_windows(cls, process_id):
-            """
-            Gets AXUnknown windows by given process id.
-
-            Arguments:
-                - process_id: int, process id.
-
-            Returns:
-                - List of atomac elements.
-            """
-
-            unknown_windows = []
-            app = atomac.getAppRefByPid(process_id)
-            app.activate()
-            for win in app.windowsR():
-                if win.AXRole == 'AXUnknown':
-                    unknown_windows.append(win)
-
-            return unknown_windows
-
-        @classmethod
-        def get_axdialog_windows(cls, process_id):
-            """
-            Gets AXDialog windows by given process id.
-
-            Arguments:
-                - process_id: int, process id.
-
-            Returns:
-                - List of atomac elements.
-            """
-
-            dialog_windows = []
-            app = atomac.getAppRefByPid(process_id)
-            app.activate()
-            for win in app.windowsR():
-                if win.AXRole == 'AXWindow' and win.AXSubrole == 'AXDialog':
-                    dialog_windows.append(win)
-
-            return dialog_windows
-
