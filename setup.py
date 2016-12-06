@@ -2,6 +2,7 @@
 
 from setuptools import setup, find_packages
 from os import path
+import platform
 
 
 def package_env(file_name, strict=False):
@@ -12,9 +13,12 @@ def package_env(file_name, strict=False):
         return ''
 
 if __name__ == '__main__':
+    required = ['comtypes', 'retrying==1.3.3']
+    if platform.system() == 'Darwin':
+        required.append('atomac')
     setup(
         name='uisoup-yandex',
-        version='2.4.14',
+        version='2.5.0',
         description='Cross Platform GUI Test Automation tool.',
         long_description=package_env('README.rst'),
         author='Max Beloborodko, Sergey Chipiga',
@@ -22,7 +26,7 @@ if __name__ == '__main__':
         packages=['uisoup'] + ['.'.join(('uisoup', p)) for p in
                                find_packages('uisoup')],
         include_package_data=True,
-        install_requires=['comtypes', 'retrying==1.3.3'],
+        install_requires=required,
         zip_safe=False,
         entry_points={
             'console_scripts': [
