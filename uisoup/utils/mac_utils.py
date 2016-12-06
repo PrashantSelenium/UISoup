@@ -19,10 +19,9 @@ __author__ = 'f1ashhimself@gmail.com'
 
 
 import struct
-import atomac
+from AppKit import NSAppleScript
 from Carbon import AppleEvents
 from retrying import retry
-from AppKit import NSAppleScript
 from ..utils import _Utils
 from .. import TooSaltyUISoupException
 
