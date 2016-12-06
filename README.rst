@@ -47,6 +47,9 @@ Also adds :code:`ui-inspector` script that allows you to inspect UI elements. Ju
 
 **Changelog:**
 
+UISoup 2.5.0 (released 6 Dec 2016)
+* Mac OS Additions: search of controls using Atomac.
+
 UISoup 2.4.14 (released 2 Jun 2016)
 
 * Fixes: fix setting window focus on mac.
