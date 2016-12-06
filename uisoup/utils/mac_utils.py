@@ -22,7 +22,6 @@ import struct
 from AppKit import NSAppleScript
 from Carbon import AppleEvents
 from retrying import retry
-
 from ..utils import _Utils
 from .. import TooSaltyUISoupException
 
@@ -299,45 +298,6 @@ class MacUtils(_Utils):
             return elements, int(event_descriptors_list[1].string_value)
 
         @classmethod
-        def get_element_properties(cls, obj_selector, process_name):
-            """
-            Gets all element properties.
-
-            Arguments:
-                - obj_selector: string, object selector.
-                - process_name: string, name of process.
-
-            Returns:
-                - Dict with element properties.
-            """
-
-            cmd = ['tell application "System Events" to tell application process "%s"' % process_name,
-                   '  set visible to true',
-                   '  set res to {}',
-                   '  repeat with attr in attributes of %s' % obj_selector,
-                   '    try',
-                   '      set res to res & {{name of attr, value of attr}}',
-                   '    end try',
-                   '  end repeat',
-                   '  return res',
-                   'end tell']
-
-            event_descriptors_list = list(
-                MacUtils.execute_applescript_command(cmd))
-
-            # Unpacking properties to dict.
-            el_properties = dict()
-            for prop in event_descriptors_list:
-                prop = list(prop)
-                prop_name = prop[0].string_value
-                prop_value = [e.string_value for e in list(prop[1])] if \
-                    list(prop[1]) else prop[1].string_value
-
-                el_properties[prop_name] = prop_value
-
-            return el_properties
-
-        @classmethod
         def set_element_attribute_value(cls, obj_selector, attribute_name,
                                         value, process_name,
                                         string_value=True):
@@ -368,53 +328,3 @@ class MacUtils(_Utils):
                 result = False
 
             return result
-
-        @classmethod
-        def get_axunknown_windows(cls, process_name):
-            """
-            Gets AXUnknown windows by given process name.
-
-            Arguments:
-                - process_name: string, name of process.
-
-            Returns:
-                - List of AppleEventDescriptor elements.
-            """
-
-            cmd = ['tell application "System Events" to tell process "%s"' % process_name,
-                   '  set visible to true',
-                   '  set unknownWindows to {}',
-                   '  repeat with e in UI elements',
-                   '    if value of attribute "AXRole" of e is equal to "AXUnknown" then',
-                   '      set unknownWindows to unknownWindows & {e}',
-                   '    end if',
-                   '  end repeat',
-                   '  return unknownWindows',
-                   'end tell']
-
-            return list(MacUtils.execute_applescript_command(cmd))
-
-        @classmethod
-        def get_axdialog_windows(cls, process_name):
-            """
-            Gets AXDialog windows by given process name.
-
-            Arguments:
-                - process_name: string, name of process.
-
-            Returns:
-                - List of AppleEventDescriptor elements.
-            """
-
-            cmd = ['tell application "System Events" to tell process "%s"' % process_name,
-                   '  set visible to true',
-                   '  set dialogWindows to {}',
-                   '  repeat with e in UI elements',
-                   '    if value of attribute "AXRole" of e is equal to "AXWindow" and value of attribute "AXSubrole" of e is equal to "AXDialog" then',
-                   '      set dialogWindows to dialogWindows & {e}',
-                   '    end if',
-                   '  end repeat',
-                   '  return dialogWindows',
-                   'end tell']
-
-            return list(MacUtils.execute_applescript_command(cmd))
