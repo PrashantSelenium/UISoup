@@ -232,7 +232,6 @@ class MacElement(IElement):
         return MacUtils.replace_inappropriate_symbols(result or '')
 
     def set_focus(self):
-        # TODO:
         MacUtils.ApplescriptExecutor.set_element_attribute_value(
             self._object_selector, 'AXFocused', 'true', self._proc_name, False)
 
@@ -252,7 +251,6 @@ class MacElement(IElement):
         return self._properties.get('AXValue', None)
 
     def set_value(self, value):
-        # TODO:
         MacUtils.ApplescriptExecutor.set_element_attribute_value(
             self._object_selector, 'AXValue', value, self._proc_name)
         self._cached_properties = None
